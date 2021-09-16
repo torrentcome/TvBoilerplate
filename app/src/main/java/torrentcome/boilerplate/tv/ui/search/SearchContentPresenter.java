@@ -13,7 +13,7 @@ import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class SearchContentPresenter extends BasePresenter<SearchContentMvpView> {
+public class SearchContentPresenter extends BasePresenter<SearchContentBaseView> {
 
     private final DataManager mDataManager;
 
@@ -27,9 +27,8 @@ public class SearchContentPresenter extends BasePresenter<SearchContentMvpView> 
         super.detachView();
     }
 
-    public void search(List<Photo> photos) {
-        checkViewAttached();
-        mDataManager.get(photos)
+    public void search() {
+        mDataManager.getPhotos()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new SingleObserver<List<Photo>>() {

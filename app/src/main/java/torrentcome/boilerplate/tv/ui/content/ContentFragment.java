@@ -1,7 +1,6 @@
 package torrentcome.boilerplate.tv.ui.content;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,12 +14,8 @@ import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
-import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
-import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -30,45 +25,35 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import torrentcome.boilerplate.tv.R;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import torrentcome.boilerplate.tv.App;
 import torrentcome.boilerplate.tv.domain.Photo;
-import torrentcome.boilerplate.tv.ui.base.BaseActivity;
 import torrentcome.boilerplate.tv.ui.common.CardPresenter;
 import torrentcome.boilerplate.tv.ui.search.SearchContentActivity;
 
-public class ContentFragment extends BrowseFragment implements ContentMvpView {
+public class ContentFragment extends BrowseFragment implements ContentBaseView {
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
-    private final OnItemViewClickedListener mOnItemViewClickedListener = new OnItemViewClickedListener() {
-        @Override
-        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
-            // respond to item clicks
-        }
+    private final OnItemViewClickedListener mOnItemViewClickedListener = (itemViewHolder, item, rowViewHolder, row) -> {
     };
 
     @Inject
-    ContentPresenter mContentPresenter;
+    ContentPresenter contentPresenter;
 
-    private ArrayObjectAdapter mRowsAdapter;
+    private ArrayObjectAdapter rowsAdapter;
     private BackgroundManager mBackgroundManager;
     private DisplayMetrics mMetrics;
     private Drawable mDefaultBackground;
-    private Handler mHandler;
+    private Handler handler;
     private Runnable mBackgroundRunnable;
-    private final OnItemViewSelectedListener mOnItemViewSelectedListener =
-            new OnItemViewSelectedListener() {
-                @Override
-                public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
-                    // respond to item selection
-                    if (item instanceof Photo) {
-                        Photo photo = (Photo) item;
-                        String backgroundUrl = photo.url;
-                        if (backgroundUrl != null) startBackgroundTimer(URI.create(backgroundUrl));
-                    }
+    private final OnItemViewSelectedListener mOnItemViewSelectedListener = (itemViewHolder, item, rowViewHolder, row) -> {
+                if (item instanceof Photo) {
+                    Photo photo = (Photo) item;
+                    String backgroundUrl = photo.url;
+                    if (backgroundUrl != null) startBackgroundTimer(URI.create(backgroundUrl));
                 }
             };
 
@@ -79,14 +64,18 @@ public class ContentFragment extends BrowseFragment implements ContentMvpView {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((BaseActivity) getActivity()).activityComponent().inject(this);
-        mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-        mHandler = new Handler();
-        mContentPresenter.attachView(this);
-        setAdapter(mRowsAdapter);
+        DaggerContentComponent.builder().appComponent(App.getAppComponent()).contentModule(new ContentModule()).build().inject(this);
+
+        rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        handler = new Handler();
+        contentPresenter.attachView(this);
+        setAdapter(rowsAdapter);
+
         prepareBackgroundManager();
+
         setupUIElements();
         setupListeners();
+
         getDatas();
     }
 
@@ -94,11 +83,11 @@ public class ContentFragment extends BrowseFragment implements ContentMvpView {
     public void onDestroy() {
         super.onDestroy();
         if (mBackgroundRunnable != null) {
-            mHandler.removeCallbacks(mBackgroundRunnable);
+            handler.removeCallbacks(mBackgroundRunnable);
             mBackgroundRunnable = null;
         }
         mBackgroundManager = null;
-        mContentPresenter.detachView();
+        contentPresenter.detachView();
     }
 
     @Override
@@ -121,7 +110,7 @@ public class ContentFragment extends BrowseFragment implements ContentMvpView {
                         mBackgroundManager.setBitmap(resource);
                     }
                 });
-        if (mBackgroundRunnable != null) mHandler.removeCallbacks(mBackgroundRunnable);
+        if (mBackgroundRunnable != null) handler.removeCallbacks(mBackgroundRunnable);
     }
 
     private void setupUIElements() {
@@ -148,27 +137,15 @@ public class ContentFragment extends BrowseFragment implements ContentMvpView {
     }
 
     private void getDatas() {
-        Resources resources = getResources();
-        String[] names = resources.getStringArray(R.array.names);
-        String[] descriptions = resources.getStringArray(R.array.descriptions);
-        String[] images = resources.getStringArray(R.array.images);
-
-        List<Photo> photos = new ArrayList<>();
-        for (int i = 0; i < names.length; i++) {
-            photos.add(new Photo(names[i], descriptions[i], images[i]));
-        }
-        mContentPresenter.getDatas(photos);
+        contentPresenter.getDatas();
     }
 
     private void startBackgroundTimer(final URI backgroundURI) {
-        if (mBackgroundRunnable != null) mHandler.removeCallbacks(mBackgroundRunnable);
-        mBackgroundRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (backgroundURI != null) updateBackground(backgroundURI.toString());
-            }
+        if (mBackgroundRunnable != null) handler.removeCallbacks(mBackgroundRunnable);
+        mBackgroundRunnable = () -> {
+            if (backgroundURI != null) updateBackground(backgroundURI.toString());
         };
-        mHandler.postDelayed(mBackgroundRunnable, BACKGROUND_UPDATE_DELAY);
+        handler.postDelayed(mBackgroundRunnable, BACKGROUND_UPDATE_DELAY);
     }
 
     @Override
@@ -176,12 +153,11 @@ public class ContentFragment extends BrowseFragment implements ContentMvpView {
         final ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
         listRowAdapter.addAll(0, photos);
         HeaderItem header = new HeaderItem(0, getString(R.string.header_title));
-        mRowsAdapter.add(new ListRow(header, listRowAdapter));
+        rowsAdapter.add(new ListRow(header, listRowAdapter));
     }
 
     @Override
     public void showError() {
-        // show loading error state here
         String errorMessage = getString(R.string.error_message_generic);
         Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
     }

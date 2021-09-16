@@ -3,9 +3,9 @@ package torrentcome.boilerplate.tv.ui.content;
 import java.util.List;
 
 import torrentcome.boilerplate.tv.domain.Photo;
-import torrentcome.boilerplate.tv.ui.base.MvpView;
+import torrentcome.boilerplate.tv.ui.base.BaseView;
 
-public interface ContentMvpView extends MvpView {
+public interface ContentBaseView extends BaseView {
 
     void show(List<Photo> photos);
 

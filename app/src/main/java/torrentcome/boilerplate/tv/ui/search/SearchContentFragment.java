@@ -42,13 +42,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import torrentcome.boilerplate.tv.domain.Photo;
-import torrentcome.boilerplate.tv.ui.base.BaseActivity;
 import torrentcome.boilerplate.tv.ui.common.CardPresenter;
 import torrentcome.boilerplate.tv.utils.NetworkUtils;
 import torrentcome.boilerplate.tv.utils.ToastFactory;
 import timber.log.Timber;
 
-public class SearchContentFragment extends SearchFragment implements SearchContentMvpView, SearchFragment.SearchResultProvider {
+public class SearchContentFragment extends SearchFragment implements SearchContentBaseView, SearchFragment.SearchResultProvider {
     private static final int BACKGROUND_UPDATE_DELAY = 300;
     private static final int REQUEST_SPEECH = 0x00000010;
 
@@ -84,7 +83,7 @@ public class SearchContentFragment extends SearchFragment implements SearchConte
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((BaseActivity) getActivity()).activityComponent().inject(this);
+        //((BaseActivity) getActivity()).activityComponent().inject(this);
         mResultsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         mHandler = new Handler();
         mSearchContentPresenter.attachView(this);
@@ -240,7 +239,7 @@ public class SearchContentFragment extends SearchFragment implements SearchConte
             photos.add(new Photo(names[i], descriptions[i], images[i]));
         }
 
-        mSearchContentPresenter.search(photos);
+        mSearchContentPresenter.search();
     }
 
     @Override

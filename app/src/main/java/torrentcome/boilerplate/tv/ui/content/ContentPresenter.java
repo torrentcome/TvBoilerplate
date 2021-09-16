@@ -14,13 +14,13 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import timber.log.Timber;
 
-public class ContentPresenter extends BasePresenter<ContentMvpView> {
+public class ContentPresenter extends BasePresenter<ContentBaseView> {
 
-    private final DataManager mDataManager;
+    private final DataManager dataManager;
 
     @Inject
     public ContentPresenter(DataManager dataManager) {
-        mDataManager = dataManager;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -28,28 +28,23 @@ public class ContentPresenter extends BasePresenter<ContentMvpView> {
         super.detachView();
     }
 
-    public void getDatas(List<Photo> photos) {
-        checkViewAttached();
-
-        mDataManager.get(photos)
+    public void getDatas() {
+        dataManager.getPhotos()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new SingleObserver<List<Photo>>() {
                             @Override
                             public void onSubscribe(@NonNull Disposable d) {
                             }
-
                             @Override
                             public void onSuccess(@NonNull List<Photo> photos) {
-                                getMvpView().show(photos);
+                                view.show(photos);
                             }
-
                             @Override
                             public void onError(@NonNull Throwable error) {
-                                getMvpView().showError();
+                                view.showError();
                                 Timber.e(error, "There was an error loading the data !");
                             }
                         });
     }
-
 }
