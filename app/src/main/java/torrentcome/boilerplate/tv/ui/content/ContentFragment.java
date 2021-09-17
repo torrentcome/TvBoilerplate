@@ -38,6 +38,7 @@ public class ContentFragment extends BrowseFragment implements ContentBaseView {
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
     private final OnItemViewClickedListener mOnItemViewClickedListener = (itemViewHolder, item, rowViewHolder, row) -> {
+
     };
 
     @Inject
@@ -69,6 +70,7 @@ public class ContentFragment extends BrowseFragment implements ContentBaseView {
         rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         handler = new Handler();
         contentPresenter.attachView(this);
+
         setAdapter(rowsAdapter);
 
         prepareBackgroundManager();
@@ -141,7 +143,9 @@ public class ContentFragment extends BrowseFragment implements ContentBaseView {
     }
 
     private void startBackgroundTimer(final URI backgroundURI) {
-        if (mBackgroundRunnable != null) handler.removeCallbacks(mBackgroundRunnable);
+        if (mBackgroundRunnable != null) {
+            handler.removeCallbacks(mBackgroundRunnable);
+        }
         mBackgroundRunnable = () -> {
             if (backgroundURI != null) updateBackground(backgroundURI.toString());
         };

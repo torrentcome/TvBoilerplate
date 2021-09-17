@@ -55,8 +55,10 @@ public class CardPresenter extends Presenter {
         cardView.setTitleText(photo.title);
         cardView.setContentText(photo.description);
         cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
+
         Glide.with(cardView.getContext())
-                .load(photo.url)
+                .load(photo.thumbnailUrl)
+                .centerCrop()
                 .error(mDefaultCardImage)
                 .into(cardView.getMainImageView());
     }

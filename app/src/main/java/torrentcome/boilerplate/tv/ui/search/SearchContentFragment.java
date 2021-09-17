@@ -229,16 +229,6 @@ public class SearchContentFragment extends SearchFragment implements SearchConte
     }
 
     private void search() {
-        Resources resources = getResources();
-        String[] names = resources.getStringArray(R.array.names);
-        String[] descriptions = resources.getStringArray(R.array.descriptions);
-        String[] images = resources.getStringArray(R.array.images);
-
-        List<Photo> photos = new ArrayList<>();
-        for (int i = 0; i < names.length; i++) {
-            photos.add(new Photo(names[i], descriptions[i], images[i]));
-        }
-
         mSearchContentPresenter.search();
     }
 

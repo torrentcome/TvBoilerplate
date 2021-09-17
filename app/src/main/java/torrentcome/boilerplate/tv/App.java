@@ -2,7 +2,6 @@ package torrentcome.boilerplate.tv;
 
 import android.app.Application;
 
-import torrentcome.boilerplate.tv.di.DaggerAppComponent;
 import torrentcome.boilerplate.tv.di.module.ApiModule;
 import torrentcome.boilerplate.tv.di.module.ContextModule;
 import timber.log.Timber;
@@ -25,7 +24,7 @@ public class App extends Application {
         appComponent = DaggerAppComponent.builder()
                 .contextModule(new ContextModule(this))
                 .apiModule(new ApiModule())
-                .prefsHelperModule(new SharedPrefModule())
+                .sharedPrefModule(new SharedPrefModule())
                 .build();
     }
 }

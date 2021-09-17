@@ -55,7 +55,7 @@ dependencies {
     final RETROFIT_VERSION = '2.1.0'
     implementation "com.squareup.retrofit2:retrofit:$RETROFIT_VERSION"
     implementation "com.squareup.retrofit2:converter-gson:$RETROFIT_VERSION"
-    implementation "com.squareup.retrofit2:adapter-rxjava:$RETROFIT_VERSION"
+    implementation "com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0"
 
     final OKHTTP_VERSION = '3.4.1'
     implementation "com.squareup.okhttp3:logging-interceptor:$OKHTTP_VERSION"

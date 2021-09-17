@@ -4,15 +4,13 @@ import android.content.Context;
 
 import java.io.File;
 
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
+import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import torrentcome.boilerplate.tv.data.remote.ApiService;
 import torrentcome.boilerplate.tv.di.AppScope;
@@ -52,13 +50,13 @@ public class ApiModule {
 
     @AppScope
     @Provides
-    public RxJavaCallAdapterFactory provideAdapter() {
-        return RxJavaCallAdapterFactory.create();
+    public RxJava3CallAdapterFactory provideAdapter() {
+        return RxJava3CallAdapterFactory.create();
     }
 
     @AppScope
     @Provides
-    public ApiService provideApi(OkHttpClient client, GsonConverterFactory converter, RxJavaCallAdapterFactory adapter) {
+    public ApiService provideApi(OkHttpClient client, GsonConverterFactory converter, RxJava3CallAdapterFactory adapter) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://jsonplaceholder.typicode.com/")
                 .client(client)
